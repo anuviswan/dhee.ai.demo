@@ -7,31 +7,60 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace leave_management.server
 {
     public static class GenericCommands
     {
-        
-        [FunctionName(nameof(GetRemainingLeaves))]
-        public static IActionResult GetRemainingLeaves([HttpTrigger(AuthorizationLevel.Anonymous,
-        "GET",Route = null)] HttpRequest request,
+        [FunctionName(nameof(RetrieveCasualLeaveStatus))]
+        public static IActionResult RetrieveCasualLeaveStatus([HttpTrigger(AuthorizationLevel.Anonymous,
+        "POST",Route = null)] HttpRequest request,
         ILogger logger)
         {
             logger.LogInformation("Requesting for leave status");
             var random = new Random();
 
             // Mock the leave status
-            var leaves = new LeaveStatus
+            var leaves = new CasualLeaveStatus
             {
-                TotalCasualLeaves = 20,
-                TotalSickLeaves = 20,
-                RemainingCasualLeaves = random.Next(0, 20),
-                RemainingSickLeaves = random.Next(0, 20),
+                TotalLeaves = 20,
+                Remaining = random.Next(0, 20),
             };
 
-            return new OkObjectResult(leaves);
+            return new OkObjectResult(new DheeResponseDto<CasualLeaveStatus>
+            {
+                Success = true,
+                Result = leaves,
+                ErrorMessageKey = String.Empty,
+                ResetList = Enumerable.Empty<string>()
+            }) ;
+        }
+
+
+        [FunctionName(nameof(RetrieveSickLeaveStatus))]
+        public static IActionResult RetrieveSickLeaveStatus([HttpTrigger(AuthorizationLevel.Anonymous,
+        "POST",Route = null)] HttpRequest request,
+        ILogger logger)
+        {
+            logger.LogInformation("Requesting for leave status");
+            var random = new Random();
+
+            // Mock the leave status
+            var leaves = new SickLeaveStatus
+            {
+                TotalLeaves = 20,
+                Remaining = random.Next(0, 20),
+            };
+
+            return new OkObjectResult(new DheeResponseDto<SickLeaveStatus>
+            {
+                Success = true,
+                Result = leaves,
+                ErrorMessageKey = String.Empty,
+                ResetList = Enumerable.Empty<string>()
+            });
         }
 
 
@@ -46,7 +75,13 @@ namespace leave_management.server
 
             logger.LogInformation($"Marking {data.Type} Leave from {data.StartDate} to {data.EndDate}");
 
-            return new OkObjectResult("Leave Requested");
+            return new OkObjectResult(new DheeResponseDto<LeaveRequestResponse>
+            {
+                Success = true,
+                Result = new LeaveRequestResponse { IsRequested = true},
+                ErrorMessageKey = String.Empty,
+                ResetList = Enumerable.Empty<string>()
+                            });
         }
     }
     
