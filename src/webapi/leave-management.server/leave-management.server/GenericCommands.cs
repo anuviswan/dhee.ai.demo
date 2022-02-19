@@ -13,19 +13,7 @@ namespace leave_management.server
 {
     public static class GenericCommands
     {
-        [FunctionName(nameof(SayHello))]
-        public static async Task<IActionResult> SayHello(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
-            ILogger log)
-        {
-            string name = req.Query["name"];
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            string responseMessage = $"Hello {name} !!";
-
-            return new OkObjectResult(responseMessage);
-        }
-
+        
         [FunctionName(nameof(GetRemainingLeaves))]
         public static IActionResult GetRemainingLeaves([HttpTrigger(AuthorizationLevel.Anonymous,
         "GET",Route = null)] HttpRequest request,
