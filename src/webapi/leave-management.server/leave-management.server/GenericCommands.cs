@@ -66,14 +66,19 @@ namespace leave_management.server
 
         [FunctionName(nameof(RequestLeave))]
         public static async Task<IActionResult> RequestLeave(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Function, "POST", Route = null)] HttpRequest request,
             ILogger logger)
         {
             logger.LogInformation("Parsing Leave Request Information");
-            string requestBody = await new StreamReader(request.Body).ReadToEndAsync();
-            var data = JsonConvert.DeserializeObject<LeaveRequest>(requestBody);
 
-            logger.LogInformation($"Marking {data.Type} Leave from {data.StartDate} to {data.EndDate}");
+            var data = new
+            {
+                StartDate = DateTime.Parse(request.Query["startDate"]),
+                EndDate = DateTime.Parse(request.Query["endDate"]),
+                Reason = request.Query["leaveReason"]
+            };
+
+            logger.LogInformation($"Marking {data.Reason} Leave from {data.StartDate} to {data.EndDate}");
 
             return new OkObjectResult(new DheeResponseDto<LeaveRequestResponse>
             {
@@ -81,7 +86,7 @@ namespace leave_management.server
                 Result = new LeaveRequestResponse { IsRequested = true},
                 ErrorMessageKey = String.Empty,
                 ResetList = Enumerable.Empty<string>()
-                            });
+            });
         }
     }
     
